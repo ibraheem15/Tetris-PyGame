@@ -1,3 +1,4 @@
+from turtle import position
 import pygame
 import random
 import time
@@ -163,8 +164,23 @@ def create_grid(locked_positions={}): # Locked Positions is a dictionary which w
     return grid
 
 def convert_shape_format(shape):
-    pass
+    positions = []
+    format = shape.shape[shape.rotation % len(shape.shape)] # shape.shape is a list of the 4 different shapes, shape.rotation is the current rotation of the shape
 
+    for count, line in enumerate(format): 
+        # enumerate returns the index and the value of the list at that index # count is the index
+        row = list(line) # list creates a list of the 4 different shapes or in c++ terms, an array of the 4 different shapes
+        for count2, column in enumerate(row):
+            if column == '0':
+                positions.append((shape.x + count2, shape.y + count)) 
+                # shape.x and shape.y are the x and y coordinates of the shape on the grid
+                # adding of count and count2 is to mpve the position of the shape on the grid
+        
+    for count, pos in enumerate(positions):
+        positions[count] = (pos[0] - 2, pos[1] - 4) 
+        # subtracting 2 from the x coordinate and 4 from the y coordinate is to make the shape appear left and up on the grid because the dots in the shape.shape list makes it off center        
+
+    
 def valid_space(shape, grid):
     pass
 
@@ -177,23 +193,20 @@ def get_shape():
 def draw_text_middle(text, size, color, surface):  
     pass
    
-def draw_grid(surface,grid):
-
+def draw_grid(surface,grid):   
     for row in range(len(grid)):
+        pygame.draw.line(surface,
+                         (128,128,128), # Color
+                         (top_left_x, top_left_y + row * block_size), # Start Position
+                         (top_left_x + play_width, top_left_y + row * block_size) # End Position
+                        )
         for col in range(len(grid[row])):
-            pygame.draw.rect(surface,
-                             grid[row][col],
-                             (top_left_x + col * block_size, top_left_y + row * block_size, block_size, block_size),
-                             1
+            pygame.draw.line(surface, (128,128,128),
+                             (top_left_x + col * 30, top_left_y),
+                             (top_left_x + col * 30, top_left_y + play_height)
                             )
-    
-    pygame.draw.rect(surface,
-                     (255,0,0), # Red
-                     (top_left_x, top_left_y, play_width, play_height), 
-                     5 # Border width
-                    )
-    
-    
+                             
+            
 
 def clear_rows(grid, locked):
     pass
@@ -213,6 +226,20 @@ def draw_window(surface, grid,my_digital_clock):
                         )) # Blit the text to the screen
     
     surface.blit(my_digital_clock.image, my_digital_clock.rect) # Blit the clock to the screen
+    
+    for row in range(len(grid)):
+        for col in range(len(grid[row])):
+            pygame.draw.rect(surface,
+                             grid[row][col],
+                             (top_left_x + col * block_size, top_left_y + row * block_size, block_size, block_size),
+                             1
+                            )
+    
+    pygame.draw.rect(surface,
+                     (255,0,0), # Red
+                     (top_left_x, top_left_y, play_width, play_height), 
+                     5 # Border width
+                    )
         
     draw_grid(surface, grid) # Draw the grid
     pygame.display.update() # Update the display
@@ -228,6 +255,7 @@ def main(win):
     next_piece = get_shape()
     clock = pygame.time.Clock()
     fall_time = 0
+    
     
     my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
     TICK_EVENT = pygame.USEREVENT + 1 # create a new event type
