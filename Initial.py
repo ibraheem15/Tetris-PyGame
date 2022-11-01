@@ -10,8 +10,8 @@ pygame.font.init()
 # Grid will be 10 x 20	
 
 # Global Variables
-screen_width = 1080
-screen_height = 800
+screen_width = 800
+screen_height = 700
 play_width = 300  # meaning 300 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 20 height per block
 block_size = 30
@@ -243,8 +243,8 @@ def draw_window(surface, grid,my_digital_clock):
         for col in range(len(grid[row])):
             pygame.draw.rect(surface,
                              grid[row][col],
-                             (top_left_x + col * block_size, top_left_y + row * block_size, block_size, block_size),
-                             1
+                             (top_left_x + col * block_size, top_left_y + row * block_size, block_size, block_size), # Position and Size
+                             0 # Thickness of the rectangle
                             )
     
     pygame.draw.rect(surface,
@@ -333,13 +333,15 @@ def main(win):
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
-            if check_lost(locked_positions):
-                run = False
+       
+        draw_window(win, grid, my_digital_clock)
+        
+        if check_lost(locked_positions):
+            run = False
                 
         clock.tick(60)  # limit framerate
         pygame.display.flip()  
                                 
-        draw_window(win, grid, my_digital_clock)
 
 def main_menu(win):
     main(win)
