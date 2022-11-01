@@ -1,13 +1,16 @@
 import pygame
 import random
+import time
+import datetime
+import sys
 
 pygame.font.init()
 
 # Grid will be 10 x 20	
 
 # Global Variables
-screen_width = 800
-screen_height = 700
+screen_width = 1080
+screen_height = 800
 play_width = 300  # meaning 300 // 10 = 30 width per block
 play_height = 600  # meaning 600 // 20 = 20 height per block
 block_size = 30
@@ -125,6 +128,21 @@ shape_colors = [(0, 255, 0), (255, 0, 0), (0, 255, 255), (255, 255, 0), (255, 16
 # index 0 - 6 represent shape
 
 
+class DigitalClock(pygame.sprite.Sprite):
+    def __init__(self, speed, location):
+        pygame.sprite.Sprite.__init__(self)
+        self.speed = speed
+        self.font = pygame.font.SysFont('Corbel', 30, bold=True)
+        self.rect = pygame.Rect(location, (0, 0))  # placeholder
+        self.update()
+
+    def update(self):
+        location = self.rect.left, self.rect.top  # save position
+        time_text = datetime.datetime.now().strftime("%H:%M:%S")
+        self.image = self.font.render(time_text, 1, [255, 255, 255])
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = location  # restore position
+
 class Piece(object):
     # Constructor
     def __init__(self, x, y, shape):
@@ -183,7 +201,7 @@ def clear_rows(grid, locked):
 def draw_next_shape(shape, surface):
     pass
 
-def draw_window(surface, grid):
+def draw_window(surface, grid,my_digital_clock):
     surface.fill((0,0,0)) # Fill the screen with black
     
     pygame.font.init()
@@ -194,6 +212,8 @@ def draw_window(surface, grid):
                         - (label.get_width() / 2), 30
                         )) # Blit the text to the screen
     
+    surface.blit(my_digital_clock.image, my_digital_clock.rect) # Blit the clock to the screen
+        
     draw_grid(surface, grid) # Draw the grid
     pygame.display.update() # Update the display
     
@@ -209,6 +229,10 @@ def main(win):
     clock = pygame.time.Clock()
     fall_time = 0
     
+    my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
+    TICK_EVENT = pygame.USEREVENT + 1 # create a new event type
+    pygame.time.set_timer(TICK_EVENT, 1000)  # periodically create TICK_EVENT
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -235,8 +259,15 @@ def main(win):
                     current_piece.rotation += 1
                     if not(valid_space(current_piece, grid)):
                         current_piece.rotation -= 1
-                        
-        draw_window(win, grid)
+            
+            if event.type == TICK_EVENT:
+                my_digital_clock.update()  # call new method
+            
+                    
+        clock.tick(60)  # limit framerate
+        pygame.display.flip()  
+                                
+        draw_window(win, grid, my_digital_clock)
 
 def main_menu(win):
     main(win)
