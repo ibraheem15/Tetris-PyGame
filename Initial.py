@@ -180,7 +180,6 @@ def convert_shape_format(shape):
         positions[count] = (pos[0] - 2, pos[1] - 4) 
         # subtracting 2 from the x coordinate and 4 from the y coordinate is to make the shape appear left and up on the grid because the dots in the shape.shape list makes it off center        
 
-    return positions
     
 def valid_space(shape, grid):
     accepted_pos = [[(j, i) for j in range(10) if grid[i][j] == (0,0,0)] for i in range(20)] # 2d list of all the positions that are empty
@@ -268,9 +267,7 @@ def main(win):
     current_piece = get_shape()
     next_piece = get_shape()
     clock = pygame.time.Clock()
-    fall_clock = pygame.time.Clock()
     fall_time = 0
-    fall_speed = 0.27
     
     
     my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
@@ -278,19 +275,6 @@ def main(win):
     pygame.time.set_timer(TICK_EVENT, 1000)  # periodically create TICK_EVENT
 
     while run:
-        grid = create_grid(locked_positions)
-        fall_time += fall_clock.get_rawtime()
-        fall_clock.tick()
-        
-        if fall_time / 1000 >= fall_speed:
-            fall_time = 0
-            current_piece.y += 1
-            if not(valid_space(current_piece, grid)) and current_piece.y > 0: 
-                # if the shape is not in a valid space and the y coordinate is greater than 0 
-                # then the shape has reached the bottom of the screen
-                current_piece.y -= 1 # move the shape up by 1
-                change_piece = True # change the shape to the next shape and lock the current shape in place
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -320,24 +304,7 @@ def main(win):
             if event.type == TICK_EVENT:
                 my_digital_clock.update()  # call new method
             
-        shape_pos = convert_shape_format(current_piece)
-        
-        #color the shape 
-        for i in range(len(shape_pos)):
-            x, y = shape_pos[i] 
-            if y > -1: # if the y coordinate is greater than -1 then the shape is on the grid
-                grid[y][x] = current_piece.color # color the shape
-                 
-        if change_piece: # if the shape has reached the bottom of the screen
-            for pos in shape_pos: 
-                p = (pos[0], pos[1]) # p is the position of the shape on the grid
-                locked_positions[p] = current_piece.color 
-            current_piece = next_piece
-            next_piece = get_shape()
-            change_piece = False
-            if check_lost(locked_positions):
-                run = False
-                
+                    
         clock.tick(60)  # limit framerate
         pygame.display.flip()  
                                 
