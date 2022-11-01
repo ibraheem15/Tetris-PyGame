@@ -182,10 +182,23 @@ def convert_shape_format(shape):
 
     
 def valid_space(shape, grid):
-    pass
+    accepted_pos = [[(j, i) for j in range(10) if grid[i][j] == (0,0,0)] for i in range(20)] # 2d list of all the positions that are empty
+    accepted_pos = [j for sub in accepted_pos for j in sub] # flattens the list of lists into a single list # simple words 2d array to 1d array #try using numpy to flatten the list
+
+    formatted = convert_shape_format(shape)
+
+    for pos in formatted:
+        if pos not in accepted_pos:
+            if pos[1] > -1: # as we want the shape to drop from above the screen so checking if the y coordinate is greater than -1
+                return False
+    return True
 
 def check_lost(positions):
-    pass
+    for pos in positions:
+        x, y = pos # x and y are the x and y coordinates of the shape on the grid
+        if y < 1: # if the y coordinate is less than 1 then the shape has reached the top of the screen and the game is lost
+            return True
+    return False # if the shape has not reached the top of the screen then the game is not lost
 
 def get_shape():	
     return Piece(5, 0, random.choice(shapes))
