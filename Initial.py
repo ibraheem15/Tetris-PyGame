@@ -241,6 +241,8 @@ def clear_rows(grid, locked):
             if y < ind: # if the y coordinate of the position is less than the index of the row that was cleared
                 newKey = (x, y+inc) # then create a new key with the same x coordinate and y coordinate + 1
                 locked[newKey] = locked.pop(key) # pop the key and add it to the new key 
+                
+    return inc
 
 def draw_next_shape(shape, surface):
     font = pygame.font.SysFont('Corbel', 30)
@@ -263,8 +265,14 @@ def draw_next_shape(shape, surface):
     
     
 
-def draw_window(surface, grid,my_digital_clock):
+def draw_window(surface, grid,my_digital_clock,score=0):
     surface.fill((0,0,0)) # Fill the screen with black
+    
+    # Score
+    score_font = pygame.font.SysFont('Corbel', 30, True)
+    score_label = score_font.render('Score: ' + str(score), 1, (255,255,255))
+    
+    surface.blit(score_label, (top_left_x + play_width + 65, top_left_y + play_height/13 - 100)) # blit is used to draw the label on the surface
     
     pygame.font.init()
     font = pygame.font.SysFont('Corbel', 60)
@@ -305,7 +313,10 @@ def main(win):
     clock = pygame.time.Clock()
     fall_clock = pygame.time.Clock()
     fall_time = 0
-    fall_speed = 0.27
+    fall_speed = 0.22
+    fall_speed_increase = 0.005
+    level_time = 0
+    score = 0
     
     
     my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
@@ -315,7 +326,14 @@ def main(win):
     while run:
         grid = create_grid(locked_positions)
         fall_time += fall_clock.get_rawtime()
+        level_time += fall_clock.get_rawtime()
         fall_clock.tick()
+        
+        if level_time/1000 > 5: # if the level time is greater than 5 seconds then increase the fall speed
+            level_time = 0
+            if fall_speed - fall_speed_increase > 0.12:
+                fall_speed -= fall_speed_increase
+                
         
         if fall_time / 1000 >= fall_speed:
             fall_time = 0
@@ -370,9 +388,9 @@ def main(win):
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
-            clear_rows(grid, locked_positions)
+            score += clear_rows(grid, locked_positions) * 10 # add 10 points for each row cleared
        
-        draw_window(win, grid, my_digital_clock) # draw the window with the grid and the clock
+        draw_window(win, grid, my_digital_clock,score) # draw the window with the grid and the clock
         draw_next_shape(next_piece, win) # draw the next shape
         pygame.display.update()
         
