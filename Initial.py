@@ -222,7 +222,25 @@ def draw_grid(surface,grid):
             
 
 def clear_rows(grid, locked):
-    pass
+    inc = 0
+    for i in range(len(grid)-1, -1, -1): # loop through the grid from the bottom to the top
+        row = grid[i]
+        if (0,0,0) not in row: # if the row is not empty or there is no black color in the row
+            inc += 1
+            ind = i
+            for j in range(len(row)):
+                try: # try to delete the row from the locked dictionary OR do the following code and if it fails then do the except code
+                    del locked[(j,i)]
+                except: # if the row is not in the locked dictionary then follow the code below
+                    continue # if the position is not in the locked dictionary then continue
+                
+    # if the row is full then clear and shift all the rows above it down by 1
+    if inc > 0:
+        for key in sorted(list(locked), key=lambda x: x[1] )[::-1]: # sort the locked dictionary by the y coordinate of the position
+            x, y = key #getting the x and y coordinates of the position
+            if y < ind: # if the y coordinate of the position is less than the index of the row that was cleared
+                newKey = (x, y+inc) # then create a new key with the same x coordinate and y coordinate + 1
+                locked[newKey] = locked.pop(key) # pop the key and add it to the new key 
 
 def draw_next_shape(shape, surface):
     font = pygame.font.SysFont('Corbel', 30)
@@ -352,6 +370,7 @@ def main(win):
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
+            clear_rows(grid, locked_positions)
        
         draw_window(win, grid, my_digital_clock) # draw the window with the grid and the clock
         draw_next_shape(next_piece, win) # draw the next shape
