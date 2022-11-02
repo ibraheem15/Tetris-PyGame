@@ -1,4 +1,5 @@
 from turtle import position
+from numpy import place
 import pygame
 import random
 import time
@@ -224,7 +225,25 @@ def clear_rows(grid, locked):
     pass
 
 def draw_next_shape(shape, surface):
-    pass
+    font = pygame.font.SysFont('Corbel', 30)
+    label = font.render('Next Shape', 1, (255,255,255))
+    
+    place_location = ((top_left_x + play_width + 50), top_left_y + play_height/2 - 100) # location of the next shape
+    format = shape.shape[shape.rotation % len(shape.shape)]
+    
+    for count, line in enumerate(format):
+        row = list(line)
+        for count2, column in enumerate(row):
+            if column == '0':
+                pygame.draw.rect(surface,
+                                 shape.color,
+                                 (place_location[0] + count2 * block_size, place_location[1] + count * block_size, block_size, block_size), # 
+                                 0
+                                )
+                
+    surface.blit(label, (place_location[0] + 10, place_location[1] - 30)) # blit is used to draw the label on the surface
+    
+    
 
 def draw_window(surface, grid,my_digital_clock):
     surface.fill((0,0,0)) # Fill the screen with black
@@ -254,7 +273,7 @@ def draw_window(surface, grid,my_digital_clock):
                     )
         
     draw_grid(surface, grid) # Draw the grid
-    pygame.display.update() # Update the display
+    # pygame.display.update() # Update the display
     
 
 def main(win):
@@ -334,7 +353,9 @@ def main(win):
             next_piece = get_shape()
             change_piece = False
        
-        draw_window(win, grid, my_digital_clock)
+        draw_window(win, grid, my_digital_clock) # draw the window with the grid and the clock
+        draw_next_shape(next_piece, win) # draw the next shape
+        pygame.display.update()
         
         if check_lost(locked_positions):
             run = False
