@@ -161,6 +161,7 @@ def create_grid(locked_positions={}): # Locked Positions is a dictionary which w
                 c = locked_positions[(col, row)]
                 grid[row][col] = c
     return grid
+SCORE = 0
 
 def convert_shape_format(shape):
     positions = []
@@ -203,9 +204,22 @@ def check_lost(positions):
 def get_shape():	
     return Piece(5, 0, random.choice(shapes))
 
-def draw_text_middle(text, size, color, surface):  
-    pass
-   
+def draw_Main_pages(surface, text, size, color):  
+    font = pygame.font.SysFont('Corbel', size, bold=True)
+    label = font.render(text, 1, color)
+    surface.fill((0,0,0))
+    # Tetris Title
+    font_T = pygame.font.SysFont('Corbel', 60, bold=True)
+    tetrislabel = font_T.render('TETRIS', 1, (255, 255, 255))
+    # Score Title
+    font_S = pygame.font.SysFont('Corbel', 30, bold=True)
+    scorelabel = font.render('SCORE: ' + str(SCORE), 1, (255, 255, 255))
+    print(SCORE)
+    surface.blit(scorelabel, (top_left_x + play_width  - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 200))
+    
+    surface.blit(tetrislabel, (top_left_x + play_width / 2 - (tetrislabel.get_width() / 2)-10, 50))
+    surface.blit(label, (top_left_x + play_width/2 - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 85)) #Draws the text in the middle of the screen
+    
 def draw_grid(surface,grid):   
     for row in range(len(grid)):
         pygame.draw.line(surface,
@@ -264,13 +278,13 @@ def draw_next_shape(shape, surface):
     surface.blit(label, (place_location[0] + 10, place_location[1] - 30)) # blit is used to draw the label on the surface
     
     
-
 def draw_window(surface, grid,my_digital_clock,score=0):
     surface.fill((0,0,0)) # Fill the screen with black
     
     # Score
     score_font = pygame.font.SysFont('Corbel', 30, True)
     score_label = score_font.render('Score: ' + str(score), 1, (255,255,255))
+    SCORE=score
     
     surface.blit(score_label, (top_left_x + play_width + 65, top_left_y + play_height/13 - 100)) # blit is used to draw the label on the surface
     
@@ -395,6 +409,9 @@ def main(win):
         pygame.display.update()
         
         if check_lost(locked_positions):
+            draw_Main_pages(win,"You Lost!",80, (255,255,255))
+            pygame.display.update()
+            pygame.time.delay(1500)
             run = False
                 
         clock.tick(60)  # limit framerate
@@ -402,7 +419,19 @@ def main(win):
                                 
 
 def main_menu(win):
-    main(win)
+    # main(win)
+    run = True
+    while run:
+        win.fill((0,0,0))
+        draw_Main_pages(win,"Press Any Key To Play", 60, (255,255,255))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                main(win)
+                
+    pygame.display.quit()
 
 win = pygame.display.set_mode((screen_width, screen_height)) # Create the window
 pygame.display.set_caption('Tetris') # Set the title of the window
