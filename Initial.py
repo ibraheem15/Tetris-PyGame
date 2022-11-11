@@ -204,19 +204,24 @@ def check_lost(positions):
 def get_shape():	
     return Piece(5, 0, random.choice(shapes))
 
-def draw_Main_pages(surface, text, size, color):  
+def draw_Main_pages(surface, text, size, color,check):  
     font = pygame.font.SysFont('Corbel', size, bold=True)
     label = font.render(text, 1, color)
     surface.fill((0,0,0))
     # Tetris Title
     font_T = pygame.font.SysFont('Corbel', 60, bold=True)
     tetrislabel = font_T.render('TETRIS', 1, (255, 255, 255))
-    # Score Title
+    # SCORE Title
+    global SCORE
     font_S = pygame.font.SysFont('Corbel', 30, bold=True)
-    scorelabel = font.render('SCORE: ' + str(SCORE), 1, (255, 255, 255))
-    print(SCORE)
-    surface.blit(scorelabel, (top_left_x + play_width  - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 200))
-    
+    SCORElabel = font.render('SCORE: ' + str(SCORE), 1, (255, 255, 255))
+    if check==0:
+        surface.blit(SCORElabel, (top_left_x + play_width  - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 200))
+    else:
+        surface.blit(SCORElabel, (top_left_x + play_width/2  - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 200))
+        
+
+
     surface.blit(tetrislabel, (top_left_x + play_width / 2 - (tetrislabel.get_width() / 2)-10, 50))
     surface.blit(label, (top_left_x + play_width/2 - (label.get_width()/2), top_left_y + play_height/2 - label.get_height()/2 - 85)) #Draws the text in the middle of the screen
     
@@ -278,15 +283,16 @@ def draw_next_shape(shape, surface):
     surface.blit(label, (place_location[0] + 10, place_location[1] - 30)) # blit is used to draw the label on the surface
     
     
-def draw_window(surface, grid,my_digital_clock,score=0):
+def draw_window(surface, grid,my_digital_clock):
     surface.fill((0,0,0)) # Fill the screen with black
     
-    # Score
-    score_font = pygame.font.SysFont('Corbel', 30, True)
-    score_label = score_font.render('Score: ' + str(score), 1, (255,255,255))
-    SCORE=score
+    # SCORE
+    global SCORE
+    SCORE_font = pygame.font.SysFont('Corbel', 30, True)
+    SCORE_label = SCORE_font.render('SCORE: ' + str(SCORE), 1, (255,255,255))
+    SCORE=SCORE
     
-    surface.blit(score_label, (top_left_x + play_width + 65, top_left_y + play_height/13 - 100)) # blit is used to draw the label on the surface
+    surface.blit(SCORE_label, (top_left_x + play_width + 65, top_left_y + play_height/13 - 100)) # blit is used to draw the label on the surface
     
     pygame.font.init()
     font = pygame.font.SysFont('Corbel', 60)
@@ -330,7 +336,7 @@ def main(win):
     fall_speed = 0.22
     fall_speed_increase = 0.005
     level_time = 0
-    score = 0
+    global SCORE
     
     
     my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
@@ -402,14 +408,14 @@ def main(win):
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
-            score += clear_rows(grid, locked_positions) * 10 # add 10 points for each row cleared
+            SCORE += clear_rows(grid, locked_positions) * 10 # add 10 points for each row cleared
        
-        draw_window(win, grid, my_digital_clock,score) # draw the window with the grid and the clock
+        draw_window(win, grid, my_digital_clock) # draw the window with the grid and the clock
         draw_next_shape(next_piece, win) # draw the next shape
         pygame.display.update()
         
         if check_lost(locked_positions):
-            draw_Main_pages(win,"You Lost!",80, (255,255,255))
+            draw_Main_pages(win,"You Lost!",80, (255,255,255),True)
             pygame.display.update()
             pygame.time.delay(1500)
             run = False
@@ -423,7 +429,7 @@ def main_menu(win):
     run = True
     while run:
         win.fill((0,0,0))
-        draw_Main_pages(win,"Press Any Key To Play", 60, (255,255,255))
+        draw_Main_pages(win,"Press Any Key To Play", 60, (255,255,255),False)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
