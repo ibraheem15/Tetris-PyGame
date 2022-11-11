@@ -282,8 +282,23 @@ def draw_next_shape(shape, surface):
                 
     surface.blit(label, (place_location[0] + 10, place_location[1] - 30)) # blit is used to draw the label on the surface
     
+def update_score(nscore):
+    score = max_score()
     
-def draw_window(surface, grid,my_digital_clock):
+    with open('Scores.txt', 'w') as f:
+        if int(score) > nscore:
+            f.write(str(score))
+        else:
+            f.write(str(nscore))
+            
+def max_score():
+    with open('Scores.txt', 'r') as f:
+        lines = f.readlines()
+        score = lines[0].strip()
+        
+    return score
+    
+def draw_window(surface, grid,my_digital_clock,last_score=0):
     surface.fill((0,0,0)) # Fill the screen with black
     
     # SCORE
@@ -294,6 +309,7 @@ def draw_window(surface, grid,my_digital_clock):
     
     surface.blit(SCORE_label, (top_left_x + play_width + 65, top_left_y + play_height/13 - 100)) # blit is used to draw the label on the surface
     
+    # Current Score
     pygame.font.init()
     font = pygame.font.SysFont('Corbel', 60)
     label = font.render('Tetris', 1, (255,255,255)) # Render the text
@@ -303,6 +319,12 @@ def draw_window(surface, grid,my_digital_clock):
                         )) # Blit the text to the screen
     
     surface.blit(my_digital_clock.image, my_digital_clock.rect) # Blit the clock to the screen
+    
+    # High Score
+    font_high_score = pygame.font.SysFont('Corbel', 30, True)
+    label = font_high_score.render('High Score: ' + last_score, 1, (255,255,255))
+    
+    surface.blit(label, (top_left_x - 220, 300))
     
     for row in range(len(grid)):
         for col in range(len(grid[row])):
@@ -337,6 +359,7 @@ def main(win):
     fall_speed_increase = 0.005
     level_time = 0
     global SCORE
+    last_score = max_score()
     
     
     my_digital_clock = DigitalClock([1, 1], [50, 50]) # Create the clock
@@ -410,7 +433,7 @@ def main(win):
             change_piece = False
             SCORE += clear_rows(grid, locked_positions) * 10 # add 10 points for each row cleared
        
-        draw_window(win, grid, my_digital_clock) # draw the window with the grid and the clock
+        draw_window(win, grid, my_digital_clock,last_score) # draw the window with the grid and the clock
         draw_next_shape(next_piece, win) # draw the next shape
         pygame.display.update()
         
@@ -419,6 +442,7 @@ def main(win):
             pygame.display.update()
             pygame.time.delay(1500)
             run = False
+            update_score(SCORE)
                 
         clock.tick(60)  # limit framerate
         pygame.display.flip()  
